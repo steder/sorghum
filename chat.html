@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+   <head>
+      <script type="text/javascript">
+         window.onload = function() {
+             var ws_uri = "ws://localhost:9000";
+             if ("WebSocket" in window) {
+                 webSocket = new WebSocket(ws_uri);
+             }
+             else {
+                 // Firefox 7/8 currently prefixes the WebSocket object
+                 webSocket = new MozWebSocket(ws_uri);
+             }
+             webSocket.onmessage = function(e) {
+                 console.log(e.data);
+                 messages = document.getElementById("messages");
+                 message = document.createElement("p");
+                 message.textContent = e.data;
+                 messages.appendChild(message);
+             }
+         }
+
+         function send_message(event) {
+             console.log("onclick handler called");
+             msg = document.getElementById("msgbox").value;
+             console.log("message txt:" + msg);
+             webSocket.send(msg);
+         };
+      </script>
+   </head>
+   <body>
+      <h1>Autobahn WebSockets Broadcast Demo</h1>
+      <fieldset>
+      <input id="msgbox" type="text" size="150" value="Hello World!"/><br/>
+      <button onclick='send_message()'>Send Message</button>
+      </fieldset>
+      <div id="messages">
+      </div>
+   </body>
+</html>
