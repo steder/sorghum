@@ -2,6 +2,7 @@
 <html>
    <head>
       <script type="text/javascript">
+
          window.onload = function() {
              var ws_uri = "ws://localhost:9000";
              if ("WebSocket" in window) {
@@ -12,27 +13,33 @@
                  webSocket = new MozWebSocket(ws_uri);
              }
              webSocket.onmessage = function(e) {
-                 console.log(e.data);
+             	 console.log(e.data);
                  messages = document.getElementById("messages");
                  message = document.createElement("p");
-                 message.textContent = e.data;
+				 response = JSON.parse(e.data);
+                 message.textContent = response.nickname + ":" + response.message;
                  messages.appendChild(message);
              }
          }
 
          function send_message(event) {
-             console.log("onclick handler called");
-             msg = document.getElementById("msgbox").value;
-             console.log("message txt:" + msg);
-             webSocket.send(msg);
+             msg = document.getElementById("msg_box").value;
+			 name = document.getElementById("name_box").value;
+			 json_msg = JSON.stringify({
+				"nickname":name,
+				"message":msg
+			 })
+             console.log(json_msg);
+             webSocket.send(json_msg);
          };
+
       </script>
    </head>
    <body>
       <h1>Autobahn WebSockets Broadcast Demo</h1>
       <fieldset>
-      <input id="msgbox" type="text" size="150" value="Hello World!"/><br/>
-      <button onclick='send_message()'>Send Message</button>
+      <input id="msg_box" type="text" size="150" value="Hello World!"/><br/>
+      <button onclick='send_message()'>Send Message</button><input id="name_box" type="text" size="16" value="Test"/>
       </fieldset>
       <div id="messages">
       </div>
