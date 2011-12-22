@@ -3,21 +3,19 @@ var MESSAGE_TYPE_CHAT = 1;
 var MESSAGE_TYPE_JOIN = 2;
 
 var webSocket = undefined;
+var webSocketReady = undefined;
 
 function handle_chat(response) {
-	 /*
-	   Message is a dictionary for each message:
-
-	 */
+	// response is a dictionary for each message:
     messages = document.getElementById("messages");
     message = document.createElement("p");
     message.textContent = response.nickname + ": " + response.message;
     messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
 };
 
 function handle_join(response) {
-	 /* 
-	 */
+	 //
 	 console.log("User joined: " + response.nickname);
 	 userlist = document.getElementById("userlist");
 	 user = document.createElement("li");
@@ -26,14 +24,19 @@ function handle_join(response) {
 };
 
 function send_message(event) {
-    msg = document.getElementById("msg_box").value;
-	 name = document.getElementById("name_box").value;
-	 json_msg = JSON.stringify({
-		"nickname":name,
-		"message":msg
-	 })
-    console.log(json_msg);
-    webSocket.send(json_msg);
+     msg_box = document.getElementById("msg_box");
+     msg = msg_box.value;
+     if (msg.length > 0) {
+       	 name = document.getElementById("name_box").value;
+     	 json_msg = JSON.stringify({
+     		"nickname":name,
+     		"message":msg
+     	 })
+         console.log(json_msg);
+         webSocket.send(json_msg);
+
+         msg_box.value = "";  
+     }
 };
 
 function initialize_chat() {
@@ -46,7 +49,16 @@ function initialize_chat() {
         webSocket = new MozWebSocket(ws_uri);
     }
     webSocket.onopen = function() {
+        //TODO: something better than a global webSocketReady?
+        //
+        // Maybe make this into a class?
+        //
+        // The important thing is we need a way to check
+        //   for the socket being open before we try to or
+        //   receive any data on it.
+
         console.log("Websocket Open!")
+        webSocketReady = true;
         console.log("Sending join message...");
         name = document.getElementById("name_box").value;
 	    join_msg = JSON.stringify({"nickname":name,
@@ -71,9 +83,11 @@ function initialize_chat() {
 		 }
     }
     webSocket.onerror = function(e) {
+        // Maybe toggle webSocketReady here? 
         console.log("Websocket error: " + e);
     }
     webSocket.onclose = function() {
+        // Maybe toggle webSocketReady here? 
         console.log("Websocket closed...");
     }
  };

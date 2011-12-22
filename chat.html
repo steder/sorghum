@@ -2,31 +2,70 @@
 <html>
    <head>
 	  <title>Sorghum Chat</title>
+	  <link rel="stylesheet" type="text/css" href="chat.css" />
 	  <script type="text/javascript" src="packages/jquery-1.7.1.js"></script>
       <script type="text/javascript" src="chat.js"></script>
 	  <script type="text/javascript">
 	  $(document).ready(function () {
 			initialize_chat();
-	});
-	  </script>
+			
+			// TODO: this jQuery thing does what I want in that it 
+			// binds the keyup function to the message box only
+			// when we have focus.  However, it's not all that
+			// easy to read.  Need to brush up on jQuery or 
+			// replace.
 
+			$("#msg_box").focus(function() {
+			    $(this).data("hasfocus", true);
+			});
+
+			$("#msg_box").blur(function() {
+			    $(this).data("hasfocus", false);
+			});
+
+			$(document.body).keyup(function(ev) {
+			    // 13 is ENTER
+			    if (ev.which === 13 && $("#msg_box").data("hasfocus")) {
+					  send_message();
+			    }
+			});
+
+	  });
+	  </script>
    </head>
    <body>
-      <h1>Autobahn WebSockets Broadcast Demo</h1>
-      <fieldset>
-      <input id="msg_box" type="text" size="150" value="Hello World!"/><br/>
-      <button onclick='send_message()'>Send Message</button><input id="name_box" type="text" size="16" value="Test"/>
-      </fieldset>
-      <div>
-		<p>User List</p>
-		<ol id="userlist">
-			<!-- list items -->
-		</ol>
-      </div>
-	  <pre id="messages">
-      </pre>
-
-	<!-- javascript needs to be after the body -->
-
+	  <div class="structure" id="header">
+      	<h1>Sorghum Chat</h1>
+	  </div>
+	  <div class="clear"></div>
+	  <div class="structure" id="left">
+		<!-- left section of page -->
+	  </div>
+	  <div class="structure" id="center">
+		<!-- center section of page -->
+		<div class="structure" id="main_chat_pane">
+		  <div class="scroll" id="messages">
+          </div>
+          <fieldset>
+            <input id="msg_box" type="text" size="150" value="Hello World!"/><br/>
+            <button onclick='send_message()'>Send Message</button><input id="name_box" type="text" size="16" value="Test"/>
+          </fieldset>
+        </div>
+		<div class="structure" id="user_list_pane">
+          <div id="user_list_container">
+    		<p>User List</p>
+	    	<ol id="userlist">
+		    	<!-- list items -->
+		    </ol>
+          </div>
+        </div>
+	  </div>
+	  <div class="structure" id="right">
+		<!-- right section of page -->
+	  </div>
+	  <div class="clear"></div>
+	  <div class="structure" id="footer">
+		<!-- bottom section of page -->
+	  </div>
    </body>
 </html>
