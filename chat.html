@@ -1,39 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
    <head>
-      <script type="text/javascript">
+	  <title>Sorghum Chat</title>
+	  <script type="text/javascript" src="packages/jquery-1.7.1.js"></script>
+      <script type="text/javascript" src="chat.js"></script>
+	  <script type="text/javascript">
+	  $(document).ready(function () {
+			initialize_chat();
+	});
+	  </script>
 
-         window.onload = function() {
-             var ws_uri = "ws://localhost:9000";
-             if ("WebSocket" in window) {
-                 webSocket = new WebSocket(ws_uri);
-             }
-             else {
-                 // Firefox 7/8 currently prefixes the WebSocket object
-                 webSocket = new MozWebSocket(ws_uri);
-             }
-             webSocket.onmessage = function(e) {
-             	 console.log(e.data);
-                 messages = document.getElementById("messages");
-                 message = document.createElement("p");
-				 response = JSON.parse(e.data);
-                 message.textContent = response.nickname + ":" + response.message;
-                 messages.appendChild(message);
-             }
-         }
-
-         function send_message(event) {
-             msg = document.getElementById("msg_box").value;
-			 name = document.getElementById("name_box").value;
-			 json_msg = JSON.stringify({
-				"nickname":name,
-				"message":msg
-			 })
-             console.log(json_msg);
-             webSocket.send(json_msg);
-         };
-
-      </script>
    </head>
    <body>
       <h1>Autobahn WebSockets Broadcast Demo</h1>
@@ -41,7 +17,16 @@
       <input id="msg_box" type="text" size="150" value="Hello World!"/><br/>
       <button onclick='send_message()'>Send Message</button><input id="name_box" type="text" size="16" value="Test"/>
       </fieldset>
-      <div id="messages">
+      <div>
+		<p>User List</p>
+		<ol id="userlist">
+			<!-- list items -->
+		</ol>
       </div>
+	  <pre id="messages">
+      </pre>
+
+	<!-- javascript needs to be after the body -->
+
    </body>
 </html>

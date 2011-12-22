@@ -6,7 +6,11 @@ from autobahn.websocket import (WebSocketServerFactory, WebSocketServerProtocol,
 from twisted.internet import reactor
 from twisted.python import log
 
- 
+
+MESSAGE_TYPE_CHAT = 1
+MESSAGE_TYPE_JOIN = 2
+
+
 class BroadcastServerProtocol(WebSocketServerProtocol):
  
    def onOpen(self):
@@ -15,12 +19,17 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
    def onMessage(self, msg, binary):
        if not binary:                    
            data = json.loads(msg)
-           print "%s (%s): %s" % (data["nickname"], self.peerstr, data["message"])
-           response = json.dumps({"nickname":data["nickname"],
-                                  "ip":self.peerstr,
-                                  "message":data["message"]})
-           self.factory.broadcast(response)
- 
+           msg_type = data.get("type", MESSAGE_TYPE_CHAT)
+           if msg_type == MESSAGE_TYPE_JOIN:
+               response = json.dumps({"nickname":data["nickname"],
+                                      "type":MESSAGE_TYPE_JOIN})
+               self.factory.broadcast(response)
+           else:
+               print "%s (%s): %s" % (data["nickname"], self.peerstr, data["message"])
+               response = json.dumps({"nickname":data["nickname"],
+                                    "ip":self.peerstr,
+                                    "message":data["message"]})
+               self.factory.broadcast(response)
    def connectionLost(self, reason):
        WebSocketServerProtocol.connectionLost(self, reason)
        self.factory.unregister(self)
