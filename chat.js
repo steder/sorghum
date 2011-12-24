@@ -1,6 +1,7 @@
 
 var MESSAGE_TYPE_CHAT = 1;
 var MESSAGE_TYPE_JOIN = 2;
+var MESSAGE_TYPE_PART = 3;
 
 var webSocket = undefined;
 var webSocketReady = undefined;
@@ -17,11 +18,53 @@ function handle_chat(response) {
 function handle_join(response) {
 	 //
 	 console.log("User joined: " + response.nickname);
-	 userlist = document.getElementById("userlist");
-	 user = document.createElement("li");
-	 user.textContent = response.nickname;
-	 userlist.appendChild(user);
+	 // check if user already exists:
+	 user = document.getElementById(response.userid);
+	 if (user === null) {
+	     userlist = document.getElementById("userlist");
+	     user = document.createElement("li");	     
+	     user.id = response.userid;
+	     user.textContent = response.nickname;
+	     userlist.appendChild(user);
+	 }
+     else {
+         user.textContent = response.nickname;
+     }
+     // Let's sort the user list:
+     console.log("TODO: sort user list!");
 };
+
+function handle_part(response) {
+    // remove a user from the user list 
+    console.log("TODO handle_part");
+    user = document.getElementById(response.userid);
+    if (user !== null) {
+        // only remove the user node if it exists:
+        // TODO: is it necessary to guard against this?
+        userlist = document.getElementById("userlist");
+        userlist.removeChild(user);
+    }
+}
+
+function change_nick() {
+    // changing nick could just be joining with the same name?
+  	name = document.getElementById("name_box").value;
+    json_msg = JSON.stringify({
+        "nickname":name,
+        "type":MESSAGE_TYPE_JOIN
+    })
+    webSocket.send(json_msg);
+}
+
+function hide_reconnect_button() {
+    reconnect_div = jQuery("#reconnect_box");
+    reconnect_div.hide();
+}
+
+function show_reconnect_button() {
+    reconnect_div = jQuery("#reconnect_box");
+    reconnect_div.show();
+}
 
 function send_message(event) {
      msg_box = document.getElementById("msg_box");
@@ -40,6 +83,7 @@ function send_message(event) {
 };
 
 function initialize_chat() {
+    hide_reconnect_button();
     var ws_uri = "ws://localhost:9000";
     if ("WebSocket" in window) {
         webSocket = new WebSocket(ws_uri);
@@ -56,8 +100,8 @@ function initialize_chat() {
         // The important thing is we need a way to check
         //   for the socket being open before we try to or
         //   receive any data on it.
-
         console.log("Websocket Open!")
+        hide_reconnect_button();
         webSocketReady = true;
         console.log("Sending join message...");
         name = document.getElementById("name_box").value;
@@ -74,13 +118,16 @@ function initialize_chat() {
 		 if (type === undefined) {
 		     type = MESSAGE_TYPE_CHAT;
 		 }
-		 
 		 if (type == MESSAGE_TYPE_CHAT) {
 		 	 handle_chat(response);					
 		 }
 		 else if (type == MESSAGE_TYPE_JOIN) {
 			 handle_join(response);
 		 }
+		 else if (type == MESSAGE_TYPE_PART) {
+		     handle_part(response);
+		 }
+
     }
     webSocket.onerror = function(e) {
         // Maybe toggle webSocketReady here? 
@@ -89,5 +136,6 @@ function initialize_chat() {
     webSocket.onclose = function() {
         // Maybe toggle webSocketReady here? 
         console.log("Websocket closed...");
+        show_reconnect_button();
     }
  };

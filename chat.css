@@ -15,11 +15,11 @@ div#right {
 }
 
 div#main_chat_pane {
-    width: 70%;
+    width: 80%;
 }
 
 div#user_list_pane {
-    width: 30%;
+    width: 10%;
 }
 
 div.clear {
@@ -39,4 +39,8 @@ div#messages {
 
 div#user_list_container {
     border: 1px solid blue;
+}
+
+.hidden {
+    visibility: hidden;
 }

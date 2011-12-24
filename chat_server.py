@@ -9,6 +9,7 @@ from twisted.python import log
 
 MESSAGE_TYPE_CHAT = 1
 MESSAGE_TYPE_JOIN = 2
+MESSAGE_TYPE_PART = 3
 
 
 class BroadcastServerProtocol(WebSocketServerProtocol):
@@ -22,6 +23,7 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
            msg_type = data.get("type", MESSAGE_TYPE_CHAT)
            if msg_type == MESSAGE_TYPE_JOIN:
                response = json.dumps({"nickname":data["nickname"],
+                                      "userid":self.peerstr,
                                       "type":MESSAGE_TYPE_JOIN})
                self.factory.broadcast(response)
            else:
@@ -30,6 +32,7 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
                                     "ip":self.peerstr,
                                     "message":data["message"]})
                self.factory.broadcast(response)
+               
    def connectionLost(self, reason):
        WebSocketServerProtocol.connectionLost(self, reason)
        self.factory.unregister(self)
@@ -59,13 +62,15 @@ class BroadcastServerFactory(WebSocketServerFactory):
        if client in self.clients:
            print "unregistered client " + client.peerstr
            self.clients.remove(client)
+           partMessage = json.dumps({"userid":client.peerstr,
+                                      "type":MESSAGE_TYPE_PART})
+           self.broadcast(partMessage)
  
    def broadcast(self, msg):
        print "broadcasting message '%s' .." % (msg,)
        for c in self.clients:
            print "sending to %s... " % (c.peerstr,)
            c.sendMessage(msg.encode("utf-8"))
- 
  
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
