@@ -2,27 +2,40 @@ function initialize_tanks() {
 	  var KEYCODES = {"LEFT":37,
 	                  "UP": 38,
 	                  "RIGHT":39,
-				      "DOWN":40};
+				      "DOWN":40,
+				      "R":82};
 
 	  var WIDTH = 200;
 	  var HEIGHT = 100;
 	
-    var TANK_WIDTH = 32;
-    var TANK_HEIGHT = 32;
+      var TANK_WIDTH = 32;
+      var TANK_HEIGHT = 32;
 	  var TANK_X = 0;
 	  var TANK_Y = 0;
 	  var NEW_X = TANK_X;
 	  var NEW_Y = TANK_Y;
-    var DELTA = 4;
+      var DELTA = 4;
 
 	  console.log("Loading tanks...");
 	  var c = document.getElementById("canvas");
 	  var ctx = c.getContext("2d");
 	  var img = new Image();
 	  img.onload = function () {
-	  	ctx.drawImage(img, TANK_X, TANK_Y);			
+		// drawImage(img, dx, dy)
+		// drawImage(img, dx, dy, width, height)
+		// drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+		ctx.drawImage(img, 32, 32, TANK_WIDTH, TANK_HEIGHT, 0, 0, TANK_WIDTH, TANK_HEIGHT);
 	  };
-	  img.src = "tank.png";
+
+	  img.src = "tankbrigade.png";
+
+	  function rotateTank() {
+		console.log("Rotating tank...")
+		//ctx.save()
+		ctx.translate(TANK_X, TANK_Y);
+		ctx.rotate(Math.PI/2); // rotate 90 degrees
+		//ctx.restore();
+      }
 
 	  // register keyboard handler(s):
 	  $(document).keydown(function (event){
@@ -46,6 +59,9 @@ function initialize_tanks() {
 		    if (TANK_Y + DELTA + TANK_HEIGHT <= HEIGHT) {
 		    	NEW_Y += DELTA;			
 			}
+		    break;
+		  case KEYCODES["R"]:
+		    rotateTank();
 		    break;
 		  default:
  			console.log("keyCode: " + String(event.keyCode));				
@@ -73,7 +89,8 @@ function initialize_tanks() {
 		else if (DELTA_Y > 0) {
 			TANK_Y += 1;
 		}
-		ctx.drawImage(img, TANK_X, TANK_Y);
+		//ctx.drawImage(img, TANK_X, TANK_Y);
+		ctx.drawImage(img, 32, 32, TANK_WIDTH, TANK_HEIGHT, 0, 0, TANK_WIDTH, TANK_HEIGHT);
 	  };
 	
 	  var loopTimer = setInterval(drawLoop, timeout);
