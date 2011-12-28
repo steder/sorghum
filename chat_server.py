@@ -72,6 +72,7 @@ class BroadcastServerFactory(WebSocketServerFactory):
            print "sending to %s... " % (c.peerstr,)
            c.sendMessage(msg.encode("utf-8"))
  
+ 
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
     factory = BroadcastServerFactory("ws://localhost:9000")
