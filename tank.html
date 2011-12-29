@@ -6,11 +6,13 @@
 	  <script type="text/javascript" src="packages/jquery-1.7.1.js"></script>
       <script type="text/javascript" src="tank.js"></script>
 	  <script type="text/javascript">
+      var game = undefined;
 	  $(document).ready(function () {
-		initialize_tanks();
+          game = new window.penzilla.tank.Game("canvas");
+          game.run();
 	  });
 	  </script>
-	</head>	
+	</head>
 	<body>
 		<canvas id="canvas" width="200" height="100">
 			Your browser does not support the canvas element.
