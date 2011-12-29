@@ -1,0 +1,10 @@
+* TODO [0/2] Let's Get Tanked!
+** TODO [0/7] Mechanics (Based on Wii Tanks)
+*** TODO Tanks move in any direction by pressing LEFT, UP, RIGHT, DOWN
+*** TODO Mouse pointer shows crosshair
+*** TODO Tanks can fire in one direction while moving another
+*** TODO Shots travel a max distance of one screen length
+*** TODO Shots that hit a wall prior to traveling 1/X a screen distance can bounce (x=2)
+*** TODO Shots that hit a wall after traveling over 1/X a screen distance explode when they hit walls
+*** TODO Shots that travel >= screen distance explode
+** TODO [0/0] Engine
