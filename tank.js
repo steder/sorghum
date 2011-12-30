@@ -48,6 +48,7 @@ window.penzilla.tank.Sprite.prototype.init = function(spriteMapName,
     self.theta = 0;
     self.newTheta = self.theta;
     self.rotate = false;
+    self.visible = true;
 
     self.spriteMapName = spriteMapName;
     self.xIndex = xIndex;
@@ -132,13 +133,15 @@ window.penzilla.tank.Sprite.prototype.draw = function (ctx) {
         ctx.restore();
     }
     else {
-	    ctx.drawImage(self.img,
-                      (self.xIndex * self.tileWidth) + self.xOffset + (self.xIndex * 1),
-                      (self.yIndex * self.tileHeight) + self.yOffset + (self.yIndex * 1),
-                      self.tileWidth, self.tileHeight,
-                      x, y,
-                      self.tileWidth,
-                      self.tileHeight);
+        if (self.visible) {
+	        ctx.drawImage(self.img,
+                          (self.xIndex * self.tileWidth) + self.xOffset + (self.xIndex * 1),
+                          (self.yIndex * self.tileHeight) + self.yOffset + (self.yIndex * 1),
+                          self.tileWidth, self.tileHeight,
+                          x, y,
+                          self.tileWidth,
+                          self.tileHeight);
+        }
     }
 };
 
@@ -155,6 +158,7 @@ window.penzilla.tank.Game = function(canvasId) {
 
 window.penzilla.tank.Game.prototype.init = function(canvasId) {
     var self = this;
+    self.canvasId = canvasId;
     console.log("this:" + String(this) + ":" + canvasId);
     self.canvas = document.getElementById(canvasId);
     console.log("self.canvas:" + String(self.canvas));
@@ -174,7 +178,17 @@ window.penzilla.tank.Game.prototype.init = function(canvasId) {
         32, 32, // sprite tile dimensions
         function () {console.log("Loaded image!")}
     );
+    self.crosshair = new window.penzilla.tank.Sprite(
+        "crosshair.png",
+        0, 0,
+        32, 32,
+        0, 0,
+        function () {console.log("Loaded image!")}
+    );
+
     self.tank2.setOrigin(100, 0);
+    self.crosshair.setOrigin(50, 50);
+    self.crosshair.visible = false;
 };
 
 window.penzilla.tank.Game.prototype.registerKeyboardEventHandlers = function() {
@@ -228,6 +242,19 @@ window.penzilla.tank.Game.prototype.registerKeyboardEventHandlers = function() {
  			console.log("keyCode: " + String(event.keyCode));
 		};
 	});
+
+    $(self.canvasId).mousemove(function (e) {
+        el = $(self.canvasId);
+        x = e.pageX - el.offset().left - (window.penzilla.tank.TILE_WIDTH / 2);
+        y = e.pageY - el.offset().top - (window.penzilla.tank.TILE_HEIGHT / 2);
+        self.crosshair.moveTo(x, y);
+    });
+    $(self.canvasId).mouseover(function (e) {
+        self.crosshair.visible = true;
+    });
+    $(self.canvasId).mouseout(function (e) {
+        self.crosshair.visible = false;
+    });
 };
 
 window.penzilla.tank.Game.prototype.run = function() {
@@ -244,6 +271,7 @@ window.penzilla.tank.Game.prototype.run = function() {
                       window.penzilla.tank.SCREEN_HEIGHT);
         self.tank1.draw(self.ctx);
         self.tank2.draw(self.ctx);
+        self.crosshair.draw(self.ctx);
 	};
 
 	function abortTimer() {
