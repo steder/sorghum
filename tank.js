@@ -50,6 +50,11 @@ window.penzilla.tank.Sprite.prototype.init = function(spriteMapName,
     self.rotate = false;
     self.visible = true;
 
+    self.tiles = [{x:0, y:0},
+                  {x:1, y:0},
+                  {x:2, y:0}];
+    self.step = 0;
+
     self.spriteMapName = spriteMapName;
     self.xIndex = xIndex;
     self.yIndex = yIndex;
@@ -134,9 +139,25 @@ window.penzilla.tank.Sprite.prototype.draw = function (ctx) {
     }
     else {
         if (self.visible) {
+            xIndex = self.xIndex;
+            yIndex = self.yIndex;
+
+            if (self.step > 0) {
+                if (self.step <= 40) {
+                    xIndex = self.tiles[0].x;
+                    yIndex = self.tiles[0].y;
+                } else if (self.step <= 80) {
+                    xIndex = self.tiles[1].x;
+                    yIndex = self.tiles[1].y;
+                } else {
+                    xIndex = self.tiles[2].x;
+                    yIndex = self.tiles[2].y;
+                }
+            }
+
 	        ctx.drawImage(self.img,
-                          (self.xIndex * self.tileWidth) + self.xOffset + (self.xIndex * 1),
-                          (self.yIndex * self.tileHeight) + self.yOffset + (self.yIndex * 1),
+                          (xIndex * self.tileWidth) + self.xOffset + (xIndex * 1),
+                          (yIndex * self.tileHeight) + self.yOffset + (yIndex * 1),
                           self.tileWidth, self.tileHeight,
                           x, y,
                           self.tileWidth,
@@ -189,6 +210,8 @@ window.penzilla.tank.Game.prototype.init = function(canvasId) {
     self.tank2.setOrigin(100, 0);
     self.crosshair.setOrigin(50, 50);
     self.crosshair.visible = false;
+
+    self.sprites = [];
 };
 
 window.penzilla.tank.Game.prototype.registerKeyboardEventHandlers = function() {
@@ -255,6 +278,19 @@ window.penzilla.tank.Game.prototype.registerKeyboardEventHandlers = function() {
     $(self.canvasId).mouseout(function (e) {
         self.crosshair.visible = false;
     });
+    $(self.canvasId).mousedown(function (e) {
+        el = $(self.canvasId);
+        x = e.pageX - el.offset().left - (window.penzilla.tank.TILE_WIDTH / 2);
+        y = e.pageY - el.offset().top - (window.penzilla.tank.TILE_HEIGHT / 2);
+
+        var sprite = new window.penzilla.tank.Sprite("tankbrigade.png",
+                                                            0, 0,
+                                                            32, 32,
+                                                            32, 32,
+                                                     function(e) {});
+        sprite.setOrigin(x, y);
+        self.sprites.push(sprite);
+    });
 };
 
 window.penzilla.tank.Game.prototype.run = function() {
@@ -272,6 +308,19 @@ window.penzilla.tank.Game.prototype.run = function() {
         self.tank1.draw(self.ctx);
         self.tank2.draw(self.ctx);
         self.crosshair.draw(self.ctx);
+
+        var i = 0;
+        while (i < self.sprites.length) {
+            var sprite = self.sprites[i];
+            sprite.step += 1;
+            sprite.draw(self.ctx);
+            if (sprite.step >= 120) {
+                self.sprites.pop(i);
+            } else {
+                i += 1;
+            }
+        }
+
 	};
 
 	function abortTimer() {
