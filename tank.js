@@ -62,7 +62,6 @@ window.penzilla.tank.Sprite.prototype.init = function(spriteMapName,
     self.tileHeight = tileHeight;
     self.xOffset = xOffset;
     self.yOffset = yOffset;
-    console.log("cbOnload: " + String(cbOnload));
     self.cbOnload = cbOnload;
 
     self.img = new Image();
@@ -314,8 +313,10 @@ window.penzilla.tank.Game.prototype.run = function() {
             var sprite = self.sprites[i];
             sprite.step += 1;
             sprite.draw(self.ctx);
+
             if (sprite.step >= 120) {
-                self.sprites.pop(i);
+                /* Remove the image from the list */
+                self.sprites = self.sprites.slice(0, i).concat(self.sprites.slice(i+1));
             } else {
                 i += 1;
             }
