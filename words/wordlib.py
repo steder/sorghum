@@ -36,11 +36,11 @@ SCORES = {
                "y":1,
                "z":1,},
     WOF: {"a":1,
-          "b":1,
+          "b":4,
           "c":1,
           "d":1,
           "e":1,
-          "f":1,
+          "f":4,
           "g":3,
           "h":1,
           "i":1,
@@ -51,16 +51,16 @@ SCORES = {
           "n":1,
           "o":1,
           "p":1,
-          "q":1,
+          "q":10,
           "r":1,
           "s":1,
           "t":1,
           "u":2,
-          "v":1,
+          "v":5,
           "w":4,
-          "x":1,
-          "y":1,
-          "z":1,},
+          "x":8,
+          "y":10,
+          "z":10,},
 }
 
 
@@ -88,11 +88,17 @@ def combinations(n, r):
     return permutations(n, r) / factorial(r)
 
 
+EOW = 0
+
+
 class Dictionary(object):
     def __init__(self):
         self.nodeCount = 0
         self.wordCount = 0
         self.nodes = {}
+        # store words in a trie for lookups of
+        # all words starting with a prefix
+        self.trie = {}
 
     def cleanWord(f):
         def cleanWordDeco(self, word):
@@ -102,8 +108,11 @@ class Dictionary(object):
 
     @cleanWord
     def insertWord(self, word):
-        letters = "".join(sorted(word))
+        self.insertNode(word)
+        self.insertTrie(word)
 
+    def insertNode(self, word):
+        letters = "".join(sorted(word))
         if letters not in self.nodes:
             self.wordCount += 1
             self.nodeCount += 1
@@ -111,6 +120,14 @@ class Dictionary(object):
         elif word not in self.nodes[letters]:
             self.wordCount += 1
             self.nodes[letters].append(word)
+
+    def insertTrie(self, word):
+        trieNode = self.trie
+        for letter in word:
+            if not letter in trieNode:
+                trieNode[letter] = {}
+            trieNode = trieNode[letter]
+        trieNode[EOW] = 1
 
     @cleanWord
     def getWord(self, word):
@@ -180,4 +197,40 @@ class Dictionary(object):
 
         print "Tried %s wildcard lookups."%(lookupCount,)
         return words
+
+    @cleanWord
+    def getWordsStartingWith(self, letters):
+        """
+        :arg: letters
+
+        Returns a list of words beginning with letters
+        """
+        trieNode = self.trie
+        for letter in letters:
+            trieNode = trieNode.get(letter, None)
+            if not trieNode:
+                return None
+        # now we're at the root trie node for all words that
+        # begin with letters.  we'll want to do a depth
+        # first traversal of the tree to retrieve all the child
+        # words:
+
+        def prefixWords(letters, trieNode, accumulator):
+            for letter, node in trieNode.iteritems():
+                if letter != EOW and node:
+                    print "prefixWords checking word: ", "".join(letters+letter)
+                    if node.get(EOW, False):
+                        accumulator.append("".join(letters + letter))
+                    prefixWords(letters+letter, node, accumulator)
+            return accumulator
+
+        words = []
+        if trieNode.get(EOW, False):
+            words.append("".join(letters))
+        prefixWords(letters, trieNode, words)
+        words.sort()
+        return words
+
+
+
 

@@ -48,4 +48,5 @@ if __name__=="__main__":
         elapsed = end - start
         print "\rConstructed new dictionary in %s seconds"%(elapsed,)
 
-    dictionary.getScrabbleWords("ablesut")
+    print dictionary.getScrabbleWords("ablesut")
+    print dictionary.getWordsStartingWith("quo")
