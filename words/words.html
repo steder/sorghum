@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Word Search</title>
+<script type="text/javascript" src="data.js"></script>
+<script type="text/javascript" src="words.js"></script>
+<script type="text/javascript">
+function setup() {
+    var count = document.getElementById("count");
+    count.innerHTML = String(WORDS.length);
+}
+</script>
+</head>
+
+<body onload="setup()">
+<h1>Word Search</h1>
+<p>Given some letters finds all the words that can be written with
+those letters and scores them based on Scrabble/Words With Friends scoring.</p>
+
+<p>
+  Words in DB: <span id="count">0</span>
+</p>
+
+<fieldset>
+  <input type="textfield" name="letters" id="letters"></input>
+  <button onclick="findWords()">Search</button>
+</fieldset>
+
+<hr>
+<address></address>
+<!-- hhmts start -->Last modified: Wed Jan  4 15:28:07 CST 2012 <!-- hhmts end -->
+</body>
+</html>
