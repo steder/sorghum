@@ -9,7 +9,14 @@ import time
 
 import wordlib
 
-WORD_PATH = "/usr/share/dict/words"
+#WORD_PATH = "/usr/share/dict/words"
+# /usr/share/dict/words includes words
+# that WoF doesn't think are words and
+# misses some words that WoF thinks are
+# words.
+# This words file is from:
+# http://blogmybrain.com/words-with-friends-cheat/words.txt
+WORD_PATH = "words.txt"
 PICKLE_PATH = "dictionary.pickle"
 
 
