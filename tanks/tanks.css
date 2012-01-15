@@ -9,3 +9,6 @@ body{
     height: 50%;
     background: url('./public/ajax-loader.gif');
 }
+#gjs-canvas {
+    border: 1px solid black;
+}

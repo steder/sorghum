@@ -88,6 +88,29 @@ Crosshair.prototype.update = function(msDuration) {
     this.rotation = this.rotation + 60;
 };
 
+// Tank:
+var Tank = function(x, y, width, height) {
+    Crosshair.superConstructor.apply(this, arguments);
+
+    this.startX = x;
+    this.x = x;
+    this.startY = y;
+    this.y = y;
+    this.maxSpeed = 16;
+    this.minSpeed = 4;
+    this.speed = this.minSpeed;
+
+    this.originalImage = gamejs.image.load("images/tank.png");
+    this.image = this.originalImage;
+
+    this.rect = new gamejs.Rect(this.x, this.y, width, height);
+    return this;
+};
+gamejs.utils.objects.extend(Tank, gamejs.sprite.Sprite);
+Tank.prototype.update = function(msDuration) {
+
+};
+
 
 function main() {
     var display = gamejs.display.setMode([800, 600]);
@@ -99,9 +122,11 @@ function main() {
 
     gamejs.display.setCaption("Tanks! Crosshair testing...");
 
-    var crosshair = new Crosshair(100, 100, 32, 32);
     var mainSurface = gamejs.display.getSurface();
     var displayRect = display.rect;
+
+    var crosshair = new Crosshair(100, 100, 32, 32);
+    var tank = new Tank(200, 200, 32, 32);
 
     function tick(msDuration) {
         mainSurface.fill("#FFFFFF");
@@ -121,8 +146,13 @@ function main() {
             }
         });
 
+        // Update Sprites:
         crosshair.update(msDuration);
+        tank.update(msDuration);
+
+        // Draw Sprites:
         crosshair.draw(mainSurface);
+        tank.draw(mainSurface);
     };
 
     // 30 frames a second?
@@ -131,5 +161,6 @@ function main() {
 
 
 /* Main */
-gamejs.preload(['images/crosshair.png']);
+gamejs.preload(['images/crosshair.png',
+                'images/tank.png']);
 gamejs.ready(main);
