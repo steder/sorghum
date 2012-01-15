@@ -96,9 +96,10 @@ var Tank = function(x, y, width, height) {
     this.x = x;
     this.startY = y;
     this.y = y;
-    this.maxSpeed = 16;
-    this.minSpeed = 4;
-    this.speed = this.minSpeed;
+
+    this.speed = 4;
+    this.xSpeed = 0;
+    this.ySpeed = 0;
 
     this.originalImage = gamejs.image.load("images/tank.png");
     this.image = this.originalImage;
@@ -108,7 +109,7 @@ var Tank = function(x, y, width, height) {
 };
 gamejs.utils.objects.extend(Tank, gamejs.sprite.Sprite);
 Tank.prototype.update = function(msDuration) {
-
+    this.rect.moveIp(this.xSpeed, this.ySpeed);
 };
 
 
@@ -133,10 +134,38 @@ function main() {
 
         // handle key / mouse events
         gamejs.event.get().forEach(function(event) {
-            if (event.type === gamejs.event.KEY_UP) {
-                if (event.key === gamejs.event.K_UP) {
-                    // do something useful with keys here
-                };
+            if (event.type === gamejs.event.KEY_DOWN) {
+                // increase tank speeds:
+                if (tank.xSpeed === 0) {
+                    if (event.key === gamejs.event.K_LEFT) {
+                        tank.xSpeed -= tank.speed;
+                    } else if (event.key === gamejs.event.K_RIGHT) {
+                        tank.xSpeed += tank.speed;
+                    }
+                }
+                if (tank.ySpeed === 0) {
+                    if (event.key === gamejs.event.K_UP)  {
+                        tank.ySpeed -= tank.speed;
+                    } else if (event.key === gamejs.event.K_DOWN) {
+                        tank.ySpeed += tank.speed;
+                    }
+                }
+            } else if (event.type === gamejs.event.KEY_UP) {
+                // reduce tank speeds:
+                if (tank.xSpeed !== 0) {
+                    if (event.key === gamejs.event.K_LEFT) {
+                        tank.xSpeed += tank.speed;
+                    } else if (event.key === gamejs.event.K_RIGHT) {
+                        tank.xSpeed -= tank.speed;
+                    }
+                }
+                if (tank.ySpeed !== 0) {
+                    if (event.key === gamejs.event.K_UP)  {
+                        tank.ySpeed += tank.speed;
+                    } else if (event.key === gamejs.event.K_DOWN) {
+                        tank.ySpeed -= tank.speed;
+                    }
+                }
             } else if (event.type === gamejs.event.MOUSE_MOTION) {
                 // if mouse is over display surface
                 if (displayRect.collidePoint(event.pos)) {
