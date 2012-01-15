@@ -1,3 +1,14 @@
+/*
+  TODO: Priority is to get gameplay concepts:
+  + get shooting working; click left mouse and a shell is fired
+  from your tank towards where the mouse click occured.
+  The shot can either go off screen or explode when it reaches the crosshair.  I don't hink it matters too much which way as long as the shots start at the tank.
+  + add a second tank and get collisions between tanks and shells
+  + friendly fire is probably okay actually, especially with ricochets.
+    (I think it could be cool to have people fire shots at a weird angle
+     and be killed by the ricochet.)
+ */
+
 var gamejs = require('gamejs');
 
 
