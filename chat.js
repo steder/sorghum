@@ -2,9 +2,12 @@
 var MESSAGE_TYPE_CHAT = 1;
 var MESSAGE_TYPE_JOIN = 2;
 var MESSAGE_TYPE_PART = 3;
+var MESSAGE_TYPE_USERLIST = 4;
+
 
 var webSocket = undefined;
 var webSocketReady = undefined;
+
 
 function handle_chat(response) {
 	// response is a dictionary for each message:
@@ -16,26 +19,59 @@ function handle_chat(response) {
 };
 
 function handle_join(response) {
-	 //
-	 console.log("User joined: " + response.nickname);
-	 // check if user already exists:
-	 user = document.getElementById(response.userid);
-	 if (user === null) {
-	     userlist = document.getElementById("userlist");
-	     user = document.createElement("li");	     
-	     user.id = response.userid;
-	     user.textContent = response.nickname;
-	     userlist.appendChild(user);
-	 }
-     else {
-         user.textContent = response.nickname;
-     }
-     // Let's sort the user list:
-     console.log("TODO: sort user list!");
+	//
+	console.log("User joined: " + response.nickname);
+	// check if user already exists:
+	user = document.getElementById(response.userid);
+	if (user === null) {
+	    userlist = document.getElementById("userlist");
+	    user = document.createElement("li");
+	    user.className = "username";
+	    user.id = response.userid;
+	    user.textContent = response.nickname;
+	    userlist.appendChild(user);
+	}
+    else {
+        user.textContent = response.nickname;
+    }
+    // remove disconnected users:
+    // removing is unnecessary if we just get the current list
+    // when we initialize chat and then handle join and part messages.
+    var users = $("li.username");
+    //for (var i = 0; i < users.length; i++) {
+    //}
+
+    // Let's sort the user list:
+    console.log("TODO: sort user list!");
+};
+
+
+function handle_userlist(response) {
+    // receive the entire current userlist from the server:
+    var users = response["users"];
+    var user;
+    var userNode;
+    for (var i = 0; i < users.length; i++) {
+        user = users[i];
+        userNode = document.getElementById(user.userid);
+        if (userNode === null) {
+            // insert new user node
+	        usersNode = document.getElementById("userlist");
+	        userNode = document.createElement("li");
+	        userNode.className = "username";
+	        userNode.id = user.userid;
+	        userNode.textContent = user.nickname;
+	        usersNode.appendChild(userNode);
+        }
+        else {
+            // update existing user node:
+            user.textContent = user.nickname;
+        }
+    }
 };
 
 function handle_part(response) {
-    // remove a user from the user list 
+    // remove a user from the user list
     console.log("TODO handle_part");
     user = document.getElementById(response.userid);
     if (user !== null) {
@@ -44,7 +80,8 @@ function handle_part(response) {
         userlist = document.getElementById("userlist");
         userlist.removeChild(user);
     }
-}
+};
+
 
 function change_nick() {
     // changing nick could just be joining with the same name?
@@ -54,17 +91,20 @@ function change_nick() {
         "type":MESSAGE_TYPE_JOIN
     })
     webSocket.send(json_msg);
-}
+};
+
 
 function hide_reconnect_button() {
     reconnect_div = jQuery("#reconnect_box");
     reconnect_div.hide();
-}
+};
+
 
 function show_reconnect_button() {
     reconnect_div = jQuery("#reconnect_box");
     reconnect_div.show();
-}
+};
+
 
 function send_message(event) {
      msg_box = document.getElementById("msg_box");
@@ -78,9 +118,10 @@ function send_message(event) {
          console.log(json_msg);
          webSocket.send(json_msg);
 
-         msg_box.value = "";  
+         msg_box.value = "";
      }
 };
+
 
 function initialize_chat() {
     hide_reconnect_button();
@@ -108,33 +149,38 @@ function initialize_chat() {
 	    join_msg = JSON.stringify({"nickname":name,
 	                            "type":MESSAGE_TYPE_JOIN});
 	    webSocket.send(join_msg);
-	    console.log("Sent join message!");
+        console.log("Requesting userlist from server...");
+        userlist_msg = JSON.stringify({"nickname":name,
+                                           "type":MESSAGE_TYPE_USERLIST});
+        webSocket.send(userlist_msg);
     }
     webSocket.onmessage = function(e) {
-    	 console.log(e.data);
+    	console.log(e.data);
 
-		 response = JSON.parse(e.data);
-		 type = response["type"];
-		 if (type === undefined) {
-		     type = MESSAGE_TYPE_CHAT;
+		response = JSON.parse(e.data);
+		type = response["type"];
+		if (type === undefined) {
+		    type = MESSAGE_TYPE_CHAT;
+		}
+		if (type == MESSAGE_TYPE_CHAT) {
+		 	handle_chat(response);
 		 }
-		 if (type == MESSAGE_TYPE_CHAT) {
-		 	 handle_chat(response);					
-		 }
-		 else if (type == MESSAGE_TYPE_JOIN) {
-			 handle_join(response);
-		 }
-		 else if (type == MESSAGE_TYPE_PART) {
-		     handle_part(response);
-		 }
-
+		else if (type == MESSAGE_TYPE_JOIN) {
+			handle_join(response);
+		}
+		else if (type == MESSAGE_TYPE_PART) {
+		    handle_part(response);
+		}
+        else if (type == MESSAGE_TYPE_USERLIST) {
+            handle_userlist(response);
+        }
     }
     webSocket.onerror = function(e) {
-        // Maybe toggle webSocketReady here? 
+        // Maybe toggle webSocketReady here?
         console.log("Websocket error: " + e);
     }
     webSocket.onclose = function() {
-        // Maybe toggle webSocketReady here? 
+        // Maybe toggle webSocketReady here?
         console.log("Websocket closed...");
         show_reconnect_button();
     }
