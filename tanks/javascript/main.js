@@ -146,7 +146,7 @@ function main() {
         // handle key / mouse events
         gamejs.event.get().forEach(function(event) {
             if (event.type === gamejs.event.KEY_DOWN) {
-                // increase tank speeds:
+                // increase tank speeds: (pressing down on throttle pedal)
                 if (tank.xSpeed === 0) {
                     if (event.key === gamejs.event.K_LEFT) {
                         tank.xSpeed -= tank.speed;
@@ -162,7 +162,7 @@ function main() {
                     }
                 }
             } else if (event.type === gamejs.event.KEY_UP) {
-                // reduce tank speeds:
+                // reduce tank speeds: (releasing throttle)
                 if (tank.xSpeed !== 0) {
                     if (event.key === gamejs.event.K_LEFT) {
                         tank.xSpeed += tank.speed;

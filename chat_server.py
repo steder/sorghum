@@ -1,16 +1,24 @@
 import json
 import random
 import sys
+import time
 
-from autobahn.websocket import (WebSocketServerFactory, WebSocketServerProtocol,
-                                listenWS)
+from autobahn.websocket import WebSocketServerFactory
+from autobahn.websocket import WebSocketServerProtocol
+from autobahn.websocket import listenWS
 from twisted.internet import reactor
 from twisted.python import log
+
+from words import wordlib
 
 
 MESSAGE_TYPE_CHAT = 1
 MESSAGE_TYPE_JOIN = 2
 MESSAGE_TYPE_PART = 3
+
+
+WORD_PATH = "words/words.txt"
+dictionary = None
 
 
 class BroadcastServerProtocol(WebSocketServerProtocol):
@@ -34,6 +42,39 @@ class BroadcastServerProtocol(WebSocketServerProtocol):
                                        "ip":self.peerstr,
                                        "message":"%s rolled a d6 and got %s"%(data["nickname"], random.randint(1, 6))})
                 self.factory.broadcast(response)
+             elif message.startswith("/scrabble"):
+                # cleanup and grab (arbitrary max) 10 letters [a-zA-Z]
+                # and no more than 3 '*' characters.
+                message = message.strip()
+                if message.endswith("/scrabble"):
+                   response = json.dumps({"nickname":"Computer",
+                                          "ip":self.peerstr,
+                                          "message":"The letters in your name '%s' make the following words: %s"%(data["nickname"], dictionary.getScrabbleWords(data["nickname"]))}
+                                         )
+                   self.sendMessage(response)
+                else:
+                   # split with (None, 1) removes runs of consecutive whitespace
+                   # it also splits only once so the
+                   message = message.lower()
+                   parts = message.split(None, 1)
+                   command, letters = parts
+                   letters = letters[:10]
+                   nWildcards = letters.count("*")
+                   replaceCount = nWildcards - 3
+                   if replaceCount > 0:
+                      letters = letters.replace("*", "", replaceCount)
+                   letters = "".join(sorted(letters))
+                   response = json.dumps({"nickname":"Computer",
+                                          "ip":self.peerstr,
+                                          "message":"The letters '%s' can make the following words: %s"%(letters, dictionary.getScrabbleWordsWithWildcards(letters))}
+                                         )
+                   self.sendMessage(response)
+             elif message.startswith("/"):
+                response = json.dumps({"nickname":"Computer",
+                                       "ip":self.peerstr,
+                                       "message":"I don't understand your command: %s"%(message,),
+                                       })
+                self.sendMessage(response)
              else:
                 print "%s (%s): %s" % (data["nickname"], self.peerstr, data["message"])
                 response = json.dumps({"nickname":data["nickname"],
@@ -85,4 +126,15 @@ if __name__ == '__main__':
     log.startLogging(sys.stdout)
     factory = BroadcastServerFactory("ws://localhost:9000")
     listenWS(factory)
+
+    print "Constructing new dictionary..."
+    start = time.time()
+    dictionary = wordlib.Dictionary()
+    with open(WORD_PATH, "r") as wordsFile:
+       for word in wordsFile:
+          dictionary.insertWord(word)
+    end = time.time()
+    elapsed = end - start
+    print "\rConstructed new dictionary in %s seconds"%(elapsed,)
+
     reactor.run()
